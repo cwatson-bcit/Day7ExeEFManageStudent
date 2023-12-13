@@ -123,6 +123,11 @@ namespace Day7ExeEFManageStudent
                                               $"Final Grade: {enrollment.finalGrade}");
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine("\tStudent not found!");
+
+                    }
                 }
                 else
                 {
