@@ -133,50 +133,33 @@ namespace Day7ExeEFManageStudent
 
         static void ListInstructorsAssignments()
         {
-            Console.WriteLine($"\n\tInstructors Assignments\n\t--------------------");
+            Console.WriteLine($"\n\tInstructors Assignments\n\t-----------------------");
 
             using (StudentEntities db = new StudentEntities())
             {
-                Console.Write("\n\tPlease enter an Instructor Id: ");
+                // Get instructors assignments
+                var instructorAssignments = from i in db.Instructors
+                                            join ic in db.InstructorCourses on i.pkInstructorId equals ic.fkInstructorId
+                                            join c in db.Courses on ic.fkCourseId equals c.pkCourseId
+                                            select new
+                                            {
+                                                c.title,
+                                                ic.teachingAssignment,
+                                                i.firstName,
+                                                i.lastName
+                                            };
 
-                if (Int32.TryParse(Console.ReadLine(), out int instructorId))
+                if (instructorAssignments != null && instructorAssignments.Count() > 0)
                 {
-                    // Get student courses
-                    var instructorAssignments = from i in db.Instructors
-                                                join ic in db.InstructorCourses
-                                                        on i.pkInstructorId equals ic.fkInstructorId
-                                                join c in db.Courses
-                                                       on ic.fkCourseId equals c.pkCourseId
-                                                where i.pkInstructorId == instructorId
-                                                select new
-                                                {
-                                                    c.title,
-                                                    ic.teachingAssignment,
-                                                    i.firstName,
-                                                    i.lastName
-                                                };
-
-                    if (instructorAssignments != null && instructorAssignments.Count() > 0)
+                    // Loop through the list and write each instructors' courses to the console
+                    foreach (var instructorAssignment in instructorAssignments)
                     {
-                        string name = $"\n\t{instructorAssignments.First().firstName} " +
-                                      $"{instructorAssignments.First().lastName}";
+                        string name = $"{instructorAssignment.firstName} " +
+                                      $"{instructorAssignment.lastName}";
 
-                        // Create a string of hyphens of the same length as the name
-                        string underline = String.Concat(Enumerable.Repeat("-", name.Length - 2));
-
-                        Console.WriteLine($"\n\t{name} \n\t{underline}");
-
-                        // Loop through the list and write each student enrollment to the console
-                        foreach (var assignment in instructorAssignments)
-                        {
-                            Console.WriteLine($"\t{assignment.teachingAssignment} - " +
-                                              $"Course: {assignment.title}");
-                        }
+                        Console.WriteLine($"\t{name}: {instructorAssignment.teachingAssignment} - " +
+                                          $"{instructorAssignment.title}");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("\tInvalid input!");
                 }
             }
         }
